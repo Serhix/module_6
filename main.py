@@ -4,14 +4,6 @@ from pathlib import Path
 import re
 from shutil import move, unpack_archive
 
-parser = argparse.ArgumentParser(description='Sorting folder')
-parser.add_argument('--source', '-s', required=True, help='Source folder') 
-parser.add_argument('--output', '-o', default = 'Sorted', help='Output folder') 
-
-
-args = vars(parser.parse_args()) 
-source = args.get("source")
-output = 'Sorted'
 
 def normalize(element_name: str) -> str:
     CYRILLIC_SYMBOLS = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяєіїґ"
@@ -71,8 +63,6 @@ def sort_archives(path: Path):
     list_archives.append(file_name)
     move(path, new_path / file_name)
 
-
-
 def read_folder(path: Path) -> None:
     for element in path.iterdir():
         if element.is_dir():
@@ -82,24 +72,37 @@ def read_folder(path: Path) -> None:
 
         else:
             ext = element.suffix
-            ext_up = ext.upper()
-            if ext_up == '.JPEG' or ext_up == '.PNG' or ext_up == '.JPG' or ext_up == '.SVG':
+            if ext.upper() in EXT_IMAGES:
                 sort_images(element)
                 set_known_ext.add(ext)
-            elif ext_up == '.MP3' or ext_up == '.OGG' or ext_up == '.WAV' or ext_up == '.AMR':
+            elif ext.upper() in EXT_AUDIO:
                 sort_audio(element)
                 set_known_ext.add(ext)
-            elif ext_up == '.AVI' or ext_up == '.MP4' or ext_up == '.MOV' or ext_up == '.MKV':
+            elif ext.upper()  in EXT_VIDEO:
                 sort_video(element)
                 set_known_ext.add(ext)  
-            elif ext_up == '.DOC' or ext_up == '.DOCX' or ext_up == '.TXT' or ext_up == '.PDF' or ext_up == '.XLSX' or ext_up == '.PPTX':
+            elif ext.upper() in EXT_DOCUMENTS:
                 sort_documents(element)
                 set_known_ext.add(ext)    
-            elif ext_up == '.ZIP' or ext_up == '.GZ' or ext_up == '.TAR':
+            elif ext.upper() in EXT_ARCHIVES:
                 sort_archives(element)
                 set_known_ext.add(ext)
             else:
                 set_unknown_ext.add(ext)
+
+parser = argparse.ArgumentParser(description='Sorting folder')
+parser.add_argument('--source', '-s', required=True, help='Source folder') 
+parser.add_argument('--output', '-o', default = 'Sorted', help='Output folder') 
+
+args = vars(parser.parse_args()) 
+source = args.get("source")
+output = 'Sorted'
+
+EXT_IMAGES = {'.JPEG', '.PNG', '.JPG', '.SVG'}
+EXT_AUDIO = {'.MP3', '.OGG', '.WAV', '.AMR'}
+EXT_VIDEO = {'.AVI', '.MP4', '.MOV', '.MKV'}
+EXT_DOCUMENTS = {'.DOC', '.DOCX', '.TXT', '.PDF', '.XLSX', '.PPTX'}
+EXT_ARCHIVES = {'.ZIP', '.GZ', '.TAR'}
 
 set_unknown_ext = set()
 set_known_ext = set()
