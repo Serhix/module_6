@@ -20,37 +20,24 @@ def normalize(element_name: str) -> str:
 
     return name_normalize
 
-def sort_images(path: Path):
+def sort(path: Path, dir_name: str):
     ext = path.suffix
     file_name = normalize(path.name.removesuffix(ext)) + ext
-    list_images.append(file_name)
-    new_path =  output_folder / 'images'
+    new_path =  output_folder / dir_name
     new_path.mkdir(exist_ok=True, parents=True)
     move(path, new_path / file_name)
+
+def sort_images(path: Path):
+     sort(path, 'images')
 
 def sort_documents(path: Path):
-    ext = path.suffix
-    file_name = normalize(path.name.removesuffix(ext)) + ext
-    list_documents.append(file_name)
-    new_path =  output_folder / 'documents'
-    new_path.mkdir(exist_ok=True, parents=True)
-    move(path, new_path / file_name)
+     sort(path, 'documents')
 
 def sort_audio(path: Path):
-    ext = path.suffix
-    file_name = normalize(path.name.removesuffix(ext)) + ext
-    list_audio.append(file_name)
-    new_path =  output_folder / 'audio'
-    new_path.mkdir(exist_ok=True, parents=True)
-    move(path, new_path / file_name)
+     sort(path, 'audio')
 
 def sort_video(path: Path):
-    ext = path.suffix
-    file_name = normalize(path.name.removesuffix(ext)) + ext
-    list_video.append(file_name)
-    new_path =  output_folder / 'video'
-    new_path.mkdir(exist_ok=True, parents=True)
-    move(path, new_path / file_name)
+     sort(path, 'video')
 
 def sort_archives(path: Path):
     ext = path.suffix
@@ -67,7 +54,7 @@ def read_folder(path: Path) -> None:
     for element in path.iterdir():
         if element.is_dir():
             read_folder(element)
-            if listdir(element) == []:
+            if not listdir(element) and isinstance(listdir(element), list):
                 rmdir(element)
 
         else:
@@ -75,15 +62,19 @@ def read_folder(path: Path) -> None:
             if ext.upper() in EXT_IMAGES:
                 sort_images(element)
                 set_known_ext.add(ext)
+                list_images.append(normalize(element.name))
             elif ext.upper() in EXT_AUDIO:
                 sort_audio(element)
                 set_known_ext.add(ext)
+                list_audio.append(normalize(element.name))
             elif ext.upper()  in EXT_VIDEO:
                 sort_video(element)
-                set_known_ext.add(ext)  
+                set_known_ext.add(ext)
+                list_video.append(normalize(element.name)) 
             elif ext.upper() in EXT_DOCUMENTS:
                 sort_documents(element)
-                set_known_ext.add(ext)    
+                set_known_ext.add(ext)
+                list_documents.append(normalize(element.name))    
             elif ext.upper() in EXT_ARCHIVES:
                 sort_archives(element)
                 set_known_ext.add(ext)
